@@ -21,6 +21,9 @@ export class PostService {
       console.log(e);
       throw e;
     }
+    finally{
+      this.neo4jService.onApplicationShutdown()
+    }
   }
 
   async findOne(findPostDto: FindPostDto) {
@@ -39,6 +42,9 @@ export class PostService {
       console.log(e);
       throw e;
     }
+    finally{
+      this.neo4jService.onApplicationShutdown()
+    }
   }
 
   async update(post_id: string, createPostDto: CreatePostDto) {
@@ -53,6 +59,9 @@ export class PostService {
       console.log(e);
       throw e;
     }
+    finally{
+      this.neo4jService.onApplicationShutdown()
+    }
   }
 
   async delete(post_id: number) {
@@ -64,6 +73,9 @@ export class PostService {
     } catch (e) {
       console.log(e);
       throw e;
+    }
+    finally{
+      this.neo4jService.onApplicationShutdown()
     }
   }
 }

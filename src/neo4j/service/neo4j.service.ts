@@ -1,6 +1,6 @@
-import neo4j, { Result, Driver, int, Transaction } from 'neo4j-driver';
-import { Injectable, Inject, OnApplicationShutdown } from '@nestjs/common';
-import { Neo4jConfig } from 'src/neo4j/config/neo4j-config'; 
+import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
+import neo4j, { Driver, int, Result, Transaction } from 'neo4j-driver';
+import { Neo4jConfig } from 'src/neo4j/config/neo4j-config';
 import { NEO4J_CONFIG, NEO4J_DRIVER } from '../config/neo4j.constants';
 
 @Injectable()
@@ -47,8 +47,6 @@ export class Neo4jService implements OnApplicationShutdown {
     params?: Record<string, any>,
     databaseOrTransaction?: string | Transaction,
   ): Result {
-
-
     const session = this.getReadSession(<string>databaseOrTransaction);
     return session.run(cypher, params);
   }
@@ -58,7 +56,6 @@ export class Neo4jService implements OnApplicationShutdown {
     params?: Record<string, any>,
     databaseOrTransaction?: string | Transaction,
   ): Result {
-
     const session = this.getWriteSession(<string>databaseOrTransaction);
     return session.run(cypher, params);
   }
