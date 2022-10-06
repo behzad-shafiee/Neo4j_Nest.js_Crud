@@ -20,9 +20,8 @@ export class PostService {
     } catch (e) {
       console.log(e);
       throw e;
-    }
-    finally{
-      this.neo4jService.onApplicationShutdown()
+    } finally {
+      this.neo4jService.onApplicationShutdown();
     }
   }
 
@@ -41,9 +40,8 @@ export class PostService {
     } catch (e) {
       console.log(e);
       throw e;
-    }
-    finally{
-      this.neo4jService.onApplicationShutdown()
+    } finally {
+      this.neo4jService.onApplicationShutdown();
     }
   }
 
@@ -58,9 +56,8 @@ export class PostService {
     } catch (e) {
       console.log(e);
       throw e;
-    }
-    finally{
-      this.neo4jService.onApplicationShutdown()
+    } finally {
+      this.neo4jService.onApplicationShutdown();
     }
   }
 
@@ -73,9 +70,17 @@ export class PostService {
     } catch (e) {
       console.log(e);
       throw e;
+    } finally {
+      this.neo4jService.onApplicationShutdown();
     }
-    finally{
-      this.neo4jService.onApplicationShutdown()
+  }
+
+  async transactionTest() {
+    try {
+      await this.neo4jService.transactionTest();
+    } catch (e) {
+      console.log(e);
+      throw e;
     }
   }
 }

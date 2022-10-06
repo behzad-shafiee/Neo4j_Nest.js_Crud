@@ -63,4 +63,39 @@ export class Neo4jService implements OnApplicationShutdown {
   onApplicationShutdown() {
     return this.driver.close();
   }
+
+  async transactionTest() {
+    const session = this.driver.session();
+    try {
+      const names = await session.executeRead(async (tx) => {
+        const result = await tx.run(
+          'MATCH (post:POST) RETURN post.tjttle AS name limit 100',
+        );
+        return result.records.map((record) => record.get('name'));
+      });
+      console.log(names);
+      const relationshipsCreated = await session.executeWrite((tx) =>
+        names.map((name) =>
+          tx.run(
+            `
+                match (post_5:POST {tjttle :"5555555"}),
+(post_10:POST {tjttle :"10000"}), 
+(post_9:POST {tjttle :"9"}) 
+set post_5.tjttle="111111111111", post_10.tjttle="222222222222" , post_9.tjttle="3333333"
+
+RETURN post_5,post_10,post_9
+limit 100
+                `,
+          ),
+        ),
+      );
+      console.log('success');
+    } catch {
+      console.log('in catch');
+      await session.close();
+    } finally {
+      await session.close();
+      console.log(`sesiion close`);
+    }
+  }
 }

@@ -16,20 +16,23 @@ import { PostService } from '../service/post.service';
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
+  @Get('transactionTest')
+  async transactionTest() {
+   return this.postService.transactionTest()
+  }
+
   @Post()
   async create(query: string) {
     return await this.postService.create(query);
   }
 
   @Get(':post_id')
-  findOne(
-    @Param('post_id') post_id: string,
-  ) {
+  findOne(@Param('post_id') post_id: string) {
     console.log(post_id);
-    
-    const findPostDto={post_id:Number(post_id)}
+
+    const findPostDto = { post_id: Number(post_id) };
     console.log(findPostDto);
-    
+
     return this.postService.findOne(findPostDto);
   }
 
@@ -44,7 +47,7 @@ export class PostController {
   @Delete(':post_id')
   async remove(@Param('post_id') post_id: string) {
     console.log(post_id);
-    
+
     return await this.postService.delete(+post_id);
   }
 }
