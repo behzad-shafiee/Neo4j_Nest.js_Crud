@@ -1,10 +1,9 @@
-##### General
+##### General ######
 
 1-download and install Neo4j on your pc because for connecting you need that
 2-npm i neo4j-driver ===>this package is for using Neo4jDb on Nest.js
 
-##### Connect Neo4j
-
+##### Connect Neo4j ######
 1-for connecting we use from =>
 
 #code ===> Neo4jModule.forRoot(Neo4jConfig) in App.Module :
@@ -99,7 +98,7 @@ if connection is ok we see (([Nest] 15192  - ۱۴۰۱/۰۷/۱۶ ۱۰:۰۴:۳۳  
 for us that we can use that in ((service )) for create ((session))
 but if we have any err it returns the err
 
-##### Neo4j Serivce Methods#####
+##### Neo4j Serivce Methods #####
 in Neo4jService we have some method that you can use as required , below I bring for u the codes in service and explain them for u:
 
 export class Neo4jService implements OnApplicationShutdown {
@@ -227,10 +226,131 @@ it returns the config of our connection Neo4j , for example like this:
 While the Neo4j type system supports 64-bit integers, JavaScript is unable to handle these correctly.  In order to support Cypher’s type system, the driver will convert integer values into an instance of a neo4j Integer.  In order to work with these 
 example => int(2) return Integer { low: 2, high: 0 }
 
-4-
-// Create a session to run Cypher statements in.
+4-What is Session 
+To run one or more queries, you’ll first need to create a Session.  These sessions act as a container for a logical sequence of transactions (queries) and will borrow connections from the driver’s connection pool as necessary.  These sessions should be considered lightweight and disposable. 
 // Note: Always make sure to close sessions when you are done using them!
 
+5-Run() ===>Auto-commit Transactions 
+Auto-commit transactions are sent to the server and acknowledged immediately.  We can do by calling the run method on the session.  This method accepts two arguments, a parameterised Cypher query string and an optional object containing parameters in key, value format.
 
+6- transactionTest() ===>   Read & Write Transactions 
+## session.beginTransaction()
+## session.readTransaction() ===> deprecated — This method will be removed in version 6.0. Please, use session.executeRead instead.
+## session.writeTransaction()  ===> deprecated — This method will be removed in version 6.0. Please, use session.executeWrite instead.
+We can run a transaction in one of two ways, either by calling session.beginTransaction() which returns a transaction object, or calling session.readTransaction() or session.writeTransaction() with a function containing the work for that transaction.  The first argument for this function will be a transaction.  We can use this to run queries. 
+in my example i use from session.executeRead for reading data and from session.executeWrite for two updating data sequential
+
+7-read() and write
 read ====> use for read data
 write ===> use for create,update and delete data
+
+## Methods in Service Crud Operation ##
+
+below i bring for u code of my PostService and i explain the methods that i use in it :
+
+  async create(param: CreatePostDto) {
+    try {
+      const query = `
+        create
+        ((post1:POST {tjttle:"${param.post_tittle}"})  -[:Of]-> (comment0:COMMENT {name:"${param.comment_name}"}))
+        ,((post1)  -[:Of]-> (comment1:COMMENT {name:"comment1"}))
+        return post1`;
+      return await this.neo4jService.write(query);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    } finally {
+      // this.neo4jService.onApplicationShutdown();
+    }
+  }
+
+  async findOne(findPostDto: FindPostDto) {
+    try {
+      console.log(findPostDto.post_id);
+      console.log(typeof findPostDto.post_id);
+
+      const res = await this.neo4jService.read(
+        `match  (post:POST) -[:Of]-> (comment:COMMENT)
+        where ID(post)=${findPostDto.post_id}
+        return post,comment
+        limit 10`,
+      );
+      if(res.records.length ==0){
+        return {
+          err:{
+            msg:"node with this id not exist",
+            success:false
+          }
+        }
+      }
+      console.log(res);
+      return res;
+    } catch (e) {
+      console.log('in err');
+      console.log(e);
+      throw e;
+    } finally {
+      // this.neo4jService.onApplicationShutdown();
+    }
+  }
+
+  async update(post_id: number, createPostDto: CreatePostDto) {
+    try {
+      const res = await this.neo4jService
+        .write(`match (post:POST) -[:Of]-> (comment:COMMENT)
+        where ID(post)= ${post_id}
+        set post.tjttle="${createPostDto.post_tittle}"
+        
+        return post,comment`);
+      return res;
+    } catch (e) {
+      console.log(e);
+      throw e;
+    } finally {
+      // this.neo4jService.onApplicationShutdown();
+    }
+  }
+
+  async delete(post_id: number) {
+    try {
+      const res = await this.neo4jService.write(`match (post:POST)
+        where ID(post)= ${post_id}
+       detach delete post`);
+      return res;
+    } catch (e) {
+      console.log(e);
+      throw e;
+    } finally {
+      // this.neo4jService.onApplicationShutdown();
+    }
+  }
+
+# create ===> we write the query of create with cypher like below:
+create
+((post1:POST {tjttle:"${param.post_tittle}"})  -[:Of]-> (comment0:COMMENT {name:"${param.comment_name}"}))
+,((post1)  -[:Of]-> (comment1:COMMENT {name:"comment1"}))
+return post1
+
+we recieve the required info from client (here is post_tittle and comment_name)
+
+# read ===> we recieve the id of our considered node (here is post_id) and enter that in our query:
+`match  (post:POST) -[:Of]-> (comment:COMMENT)
+where ID(post)=${findPostDto.post_id}
+return post,comment
+limit 10``match  (post:POST) -[:Of]-> (comment:COMMENT)
+where ID(post)=${findPostDto.post_id}
+return post,comment
+limit 10`
+
+# update ===> we recieve the id of our considered node (here is post_id) and new data(post_tittle) from client then enter that in our query:
+`match (post:POST) -[:Of]-> (comment:COMMENT)
+where ID(post)= ${post_id}
+set post.tjttle="${createPostDto.post_tittle}"
+return post,comment`
+
+# delete ===> we recieve the id of our considered node (here is post_id) enter that in our query:
+`match (post:POST)
+where ID(post)= ${post_id}
+detach delete post`
+
+

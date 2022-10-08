@@ -16,22 +16,20 @@ import { PostService } from '../service/post.service';
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
-  @Get('getConfig')
-  async test() {
-   return this.postService.test()
+  //create
+  @Post(':post_tittle/:comment_name')
+  async create(
+    @Param('post_tittle') post_tittle: string,
+    @Param('comment_name') comment_name: string,
+  ) {
+    console.log(post_tittle);
+    console.log(comment_name);
+    const param = { post_tittle, comment_name };
+    console.log(param);
+    return await this.postService.create(param);
   }
 
-
-  @Get('transactionTest')
-  async transactionTest() {
-   return this.postService.transactionTest()
-  }
-
-  @Post()
-  async create(query: string) {
-    return await this.postService.create(query);
-  }
-
+  //read one
   @Get(':post_id')
   findOne(@Param('post_id') post_id: string) {
     console.log(post_id);
@@ -42,18 +40,28 @@ export class PostController {
     return this.postService.findOne(findPostDto);
   }
 
+  //update
   @Put(':post_id')
   async update(
-    @Param('post_id') post_id: string,
     @Body() createPostDto: CreatePostDto,
+    @Param('post_id') post_id: string,
   ) {
-    return await this.postService.update(post_id, createPostDto);
+    console.log(post_id);
+    console.log(createPostDto);
+    return await this.postService.update(+post_id, createPostDto);
   }
 
+  //delete
   @Delete(':post_id')
   async remove(@Param('post_id') post_id: string) {
     console.log(post_id);
 
     return await this.postService.delete(+post_id);
+  }
+
+  //test transaction
+  @Get('transactionTest')
+  async transactionTest() {
+    return this.postService.transactionTest();
   }
 }

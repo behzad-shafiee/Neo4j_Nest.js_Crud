@@ -7,21 +7,19 @@ import { FindPostDto } from '../dto/find-post.dto';
 export class PostService {
   constructor(private readonly neo4jService: Neo4jService) {}
 
-  async create(query: string) {
+  async create(param: CreatePostDto) {
     try {
-      if (!query) {
-        query = `
+      const query = `
         create
-        ((post1:POST {tjttle:"post1"})  -[:Of]-> (comment0:COMMENT {name:"comment0"}))
+        ((post1:POST {tjttle:"${param.post_tittle}"})  -[:Of]-> (comment0:COMMENT {name:"${param.comment_name}"}))
         ,((post1)  -[:Of]-> (comment1:COMMENT {name:"comment1"}))
         return post1`;
-      }
       return await this.neo4jService.write(query);
     } catch (e) {
       console.log(e);
       throw e;
     } finally {
-      this.neo4jService.onApplicationShutdown();
+      // this.neo4jService.onApplicationShutdown();
     }
   }
 
@@ -33,31 +31,42 @@ export class PostService {
       const res = await this.neo4jService.read(
         `match  (post:POST) -[:Of]-> (comment:COMMENT)
         where ID(post)=${findPostDto.post_id}
-        return post,comment`,
+        return post,comment
+        limit 10`,
       );
+      if(res.records.length ==0){
+        return {
+          err:{
+            msg:"node with this id not exist",
+            success:false
+          }
+        }
+      }
       console.log(res);
       return res;
     } catch (e) {
+      console.log('in err');
       console.log(e);
       throw e;
     } finally {
-      this.neo4jService.onApplicationShutdown();
+      // this.neo4jService.onApplicationShutdown();
     }
   }
 
-  async update(post_id: string, createPostDto: CreatePostDto) {
+  async update(post_id: number, createPostDto: CreatePostDto) {
     try {
       const res = await this.neo4jService
         .write(`match (post:POST) -[:Of]-> (comment:COMMENT)
         where ID(post)= ${post_id}
-        set post.tjttle="${createPostDto.tittle}"
+        set post.tjttle="${createPostDto.post_tittle}"
+        
         return post,comment`);
       return res;
     } catch (e) {
       console.log(e);
       throw e;
     } finally {
-      this.neo4jService.onApplicationShutdown();
+      // this.neo4jService.onApplicationShutdown();
     }
   }
 
@@ -71,23 +80,13 @@ export class PostService {
       console.log(e);
       throw e;
     } finally {
-      this.neo4jService.onApplicationShutdown();
+      // this.neo4jService.onApplicationShutdown();
     }
   }
 
   async transactionTest() {
     try {
       await this.neo4jService.transactionTest();
-    } catch (e) {
-      console.log(e);
-      throw e;
-    }
-  }
-
-  async test() {
-    try {
-      const result = this.neo4jService.int(2);
-      console.log(result);
     } catch (e) {
       console.log(e);
       throw e;

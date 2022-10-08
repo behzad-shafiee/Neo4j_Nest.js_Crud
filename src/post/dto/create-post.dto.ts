@@ -1,8 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
 export class CreatePostDto {
-    @IsNotEmpty()
-    @ApiProperty()
-    tittle:string
+  @ApiProperty()
+  @IsNotEmpty()
+  post_tittle: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  comment_name: string;
 }
