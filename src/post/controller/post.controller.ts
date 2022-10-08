@@ -16,6 +16,12 @@ import { PostService } from '../service/post.service';
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
+  @Get('getConfig')
+  async test() {
+   return this.postService.test()
+  }
+
+
   @Get('transactionTest')
   async transactionTest() {
    return this.postService.transactionTest()

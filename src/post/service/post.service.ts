@@ -83,4 +83,14 @@ export class PostService {
       throw e;
     }
   }
+
+  async test() {
+    try {
+      const result = this.neo4jService.int(2);
+      console.log(result);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
 }

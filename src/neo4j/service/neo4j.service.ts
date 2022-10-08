@@ -64,6 +64,7 @@ export class Neo4jService implements OnApplicationShutdown {
     return this.driver.close();
   }
 
+
   async transactionTest() {
     const session = this.driver.session();
     try {
@@ -74,28 +75,39 @@ export class Neo4jService implements OnApplicationShutdown {
         return result.records.map((record) => record.get('name'));
       });
       console.log(names);
-      const relationshipsCreated = await session.executeWrite((tx) =>
-        names.map((name) =>
-          tx.run(
+      const relationshipsCreated = await session.executeWrite(async (tx) =>
+      names.map(async (name) =>
+       await tx.run(
             `
-                match (post_5:POST {tjttle :"5555555"}),
-(post_10:POST {tjttle :"10000"}), 
-(post_9:POST {tjttle :"9"}) 
-set post_5.tjttle="111111111111", post_10.tjttle="222222222222" , post_9.tjttle="3333333"
-
-RETURN post_5,post_10,post_9
-limit 100
+                match (post_5:POST {tjttle :"222222222222"})
+                set post_5.tjttle="333"
+                RETURN post_5
+                limit 10
                 `,
           ),
-        ),
-      );
+
+        await tx.run(
+            `
+                match 
+                (post_10:POST {tjttle :"3333333333" })
+                set post_10.tjttle="44444444444"
+                RETURN post_10
+                limit 10
+                `
+                ),
+             
+        
+      ))
       console.log('success');
-    } catch {
+    
+    } catch(e) {
       console.log('in catch');
+      console.log(e);
       await session.close();
     } finally {
-      await session.close();
+      await session.close()
       console.log(`sesiion close`);
     }
   }
+  
 }
