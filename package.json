@@ -31,6 +31,7 @@
     "class-validator": "^0.13.2",
     "dotenv": "^16.0.3",
     "neo4j-driver": "^5.0.1",
+    "neo4j-node-ogm": "^1.1.14",
     "neode": "^0.4.8",
     "ng": "^0.0.0",
     "reflect-metadata": "^0.1.13",
